@@ -52,12 +52,12 @@ namespace IText_PDFGenerator.Models
             _watermark.SetFixedPrint(fixedPrint);
         }
 
-        public void SetText(Color color, string text, Font font)
+        public void SetText(Color color, string text, Font font, float pageSize)
         {
             float[] transformValues = new float[6];
             _transform.GetMatrix(transformValues);
 
-            _canvas.WriteText(color, transformValues, font, text);
+            _canvas.WriteText(color, transformValues, font, pageSize, text);
         }
 
         public void SetAnnotation()

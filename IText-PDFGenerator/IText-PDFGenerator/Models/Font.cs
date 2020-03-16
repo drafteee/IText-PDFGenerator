@@ -14,6 +14,11 @@ namespace IText_PDFGenerator.Models
         {
         }
 
+        public Font(string pathToFont, string encoding)
+        {
+            _font = PdfFontFactory.CreateFont(String.IsNullOrEmpty(pathToFont) ? StandardFonts.TIMES_ROMAN : pathToFont, encoding, true);
+        }
+
         public Font(string pathToFont, string encoding, float fontSize)
         {
             _font = PdfFontFactory.CreateFont(String.IsNullOrEmpty(pathToFont) ? StandardFonts.TIMES_ROMAN : pathToFont, encoding, true);

@@ -27,12 +27,12 @@ namespace IText_PDFGenerator.Models
             _canvas.SetColor(color, true);
         }
 
-        public void WriteText(Color color, float[] transformValues, Font font, string text)
+        public void WriteText(Color color, float[] transformValues, Font font, float pageSize, string text)
         {
             _canvas.SaveState()
                         .BeginText().SetColor(color, true).SetExtGState(_gs)
                         .SetTextMatrix(transformValues[0], transformValues[1], transformValues[2], transformValues[3], transformValues[4], transformValues[5])
-                        .SetFontAndSize(font.PdfFont, font.FontSize)
+                        .SetFontAndSize(font.PdfFont, pageSize)
                         .ShowText(text)
                         .EndText()
                         .RestoreState();

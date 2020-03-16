@@ -11,9 +11,11 @@ namespace IText_PDFGenerator.Models
     public class Doc : IDisposable
     {
         private Document _doc;
+        private PageSize _pageSize;
         public Doc(Pdf pdf, PageSize pageSize, bool immediateFlush)
         {
            _doc = new Document(pdf.PdfDoc, pageSize, immediateFlush);
+            _pageSize = pageSize;
         }
 
         public void SetMargins(float top, float right, float bottom, float left)
@@ -31,6 +33,17 @@ namespace IText_PDFGenerator.Models
         {
             _doc.Add(new Paragraph(content));
         }
+
+        public void AddText(Paragraph paragraph)
+        {
+            _doc.Add(paragraph);
+        }
+
+        public void AddTextCentered(Paragraph paragraph)
+        {
+            _doc.Add(paragraph.SetTextAlignment(TextAlignment.CENTER));
+        }
+
         public void GoNextPage()
         {
             _doc.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));

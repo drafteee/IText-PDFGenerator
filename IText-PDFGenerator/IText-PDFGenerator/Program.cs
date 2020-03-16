@@ -8,6 +8,7 @@ namespace IText_PDFGenerator
         {
             Console.WriteLine("Hello World!");
             var s = new ITextService();
+            s.GeneratePDF();
         }
     }
 }
