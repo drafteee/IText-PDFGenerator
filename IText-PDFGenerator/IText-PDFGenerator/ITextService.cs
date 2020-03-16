@@ -1,21 +1,9 @@
-﻿using iText.Barcodes;
-using iText.Kernel.Colors;
-using iText.Kernel.Font;
+﻿using iText.Kernel.Colors;
 using iText.Kernel.Geom;
-using iText.Kernel.Pdf;
-using iText.Kernel.Pdf.Annot;
-using iText.Kernel.Pdf.Canvas;
-using iText.Kernel.Pdf.Extgstate;
-using iText.Kernel.Pdf.Xobject;
-using iText.Layout;
-using iText.Layout.Element;
-using iText.Layout.Properties;
 using IText_PDFGenerator.Models;
 using System;
-using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
-using System.Text;
-using Rectangle = iText.Kernel.Geom.Rectangle;
 
 namespace IText_PDFGenerator
 {
@@ -23,26 +11,24 @@ namespace IText_PDFGenerator
     {
         public ITextService()
         {
-            using(var pdf = new Pdf($"../../../OutputFIles/generatePDF.pdf", FileMode.OpenOrCreate))
+            using(var pdf = new Pdf(new FileStream($"../../../OutputFIles/generatePDF.pdf", FileMode.OpenOrCreate)))
             {
 
-                pdf.AddPage();
-                pdf.AddPage();
-                pdf.AddPage();
-                pdf.AddPage();
+                pdf.AddPage(PageSize.A4);
+                pdf.AddPage(PageSize.A4);
+                pdf.AddPage(PageSize.A3);
+                pdf.AddPage(PageSize.A4);
 
                 using (var doc = new Doc(pdf, PageSize.A4, false))
                 {
                     doc.SetMargins(100, 40, 100, 48);
 
-                    Font font = new Font();
-                    Font font1251 = new Font("../../../Fonts/TIMES.ttf", "Cp1251", 36);
+                    IText_PDFGenerator.Models.Font font = new IText_PDFGenerator.Models.Font();
+                    IText_PDFGenerator.Models.Font font1251 = new IText_PDFGenerator.Models.Font("../../../Fonts/TIMES.ttf", "Cp1251", 36);
 
                     Barcode barcode = new Barcode("https://www.webopedia.com/TERM/Q/QR_Code.html");
-                    float[] sizesPage;
-                    pdf.GetSizesPage(out sizesPage);
-                    float watermarkTrimmingRectangleWidth = sizesPage[0];
-                    float watermarkTrimmingRectangleHeight = sizesPage[1];
+                    
+                    
 
                     doc.AddText("ti pidor");
                     doc.AddText("ti pidor1");
@@ -59,15 +45,32 @@ namespace IText_PDFGenerator
 
                     for (int i = 1; i <= pdf.GetCountPages; i++)
                     {
-                        pdf.SetBarcode(barcode, i);
-                        doc.SetFootnotePage($"Специальное разрешение, {i}", font1251, i);
+                        float[] sizesPage;
+                        pdf.GetSizesPage(out sizesPage, i);
+                        var pW = sizesPage[0];
+                        var pH = sizesPage[1];
 
+                        pdf.SetBarcode(barcode, i, pH - 100);
+                        doc.SetFootnotePage($"Специальное разрешение, {i}", font1251, i, pW - 50);
+
+                        float bottomLeftX = pW / 2 - pW / 2;
+                        float bottomLeftY = pH / 2 - pH / 2;
                         //Center the annotation
-                        float bottomLeftX = sizesPage[0] / 2 - watermarkTrimmingRectangleWidth / 2;
-                        float bottomLeftY = sizesPage[1] / 2 - watermarkTrimmingRectangleHeight / 2;
-                        Watermark watermark = new Watermark(bottomLeftX, bottomLeftY, watermarkTrimmingRectangleWidth, watermarkTrimmingRectangleHeight, 0.6f, pdf.PdfDoc);
+                        Watermark watermark = new Watermark(bottomLeftX, bottomLeftY, pW, pH, 0.6f, pdf.PdfDoc);
 
-                        watermark.TranslateAndRotate(50, 25, Math.PI / 3);
+                        using (System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(new Bitmap(1, 1)))
+                        {
+                            SizeF size = graphics.MeasureString("Единый реестр лицензий Руспублики Беларусь", new System.Drawing.Font("TIMES", 36, FontStyle.Regular, GraphicsUnit.Pixel));
+                            
+                            var textW = size.Width;
+                            var textH = size.Height;
+                            var catetH = (textW * (Math.Sqrt(3)/2)) / 1;
+                            var catetW = (textW * 1/2) / 1;
+                            var indentW = (pW - catetW) / 2;
+                            var indentH = (pH - catetH) / 2;
+                            watermark.TranslateAndRotate(indentW, indentH, Math.PI / 3);
+                        }
+
                         watermark.SetFixed();
                         watermark.SetText(ColorConstants.GRAY, "Единый реестр лицензий Руспублики Беларусь", font1251);
                         watermark.SetAnnotation();
