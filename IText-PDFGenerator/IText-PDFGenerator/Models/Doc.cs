@@ -21,10 +21,10 @@ namespace IText_PDFGenerator.Models
             _doc.SetMargins(top, right, bottom, left);
         }
 
-        public void SetFootnotePage(string content, Font font, int numberPage)
+        public void SetFootnotePage(string content, Font font, int numberPage, float paddingX)
         {
             _doc.ShowTextAligned(new Paragraph().SetFont(font.PdfFont).Add(content),
-                                559, 50, numberPage, TextAlignment.RIGHT, VerticalAlignment.BOTTOM, 0);
+                                paddingX, 50, numberPage, TextAlignment.RIGHT, VerticalAlignment.BOTTOM, 0);
         }
 
         public void AddText(string content)

@@ -1,4 +1,5 @@
-﻿using iText.Kernel.Pdf;
+﻿using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas;
 using iText.Kernel.Pdf.Xobject;
 using System;
@@ -14,9 +15,9 @@ namespace IText_PDFGenerator.Models
         private PdfWriter _pdfWriter;
         private PdfDocument _pdfDoc;
         private PdfXObject _xObject;
-        public Pdf(string path, FileMode mode)
+        public Pdf(FileStream fileStream)
         {
-            _fileStream = new FileStream(path, mode);
+            _fileStream = fileStream;
 
             _pdfWriter = new PdfWriter(_fileStream);
 
@@ -39,11 +40,11 @@ namespace IText_PDFGenerator.Models
             }
         }
 
-        public void SetBarcode(Barcode barcode, int numberPage)
+        public void SetBarcode(Barcode barcode, int numberPage, float paddingY)
         {
             _xObject = barcode.GetBarcode.CreateFormXObject(null, _pdfDoc);
             PdfCanvas canvas = new PdfCanvas(_pdfDoc.GetPage(numberPage));
-            canvas.AddXObject(_xObject, 2, 0, 0, 2, 40, 750);
+            canvas.AddXObject(_xObject, 2, 0, 0, 2, 40, paddingY);
         }
 
         public void SetAnnotation(int numberPage, Watermark watermark)
@@ -53,16 +54,16 @@ namespace IText_PDFGenerator.Models
             page.AddAnnotation(watermark.GetWatermarkAnnotation);
         }
 
-        public void GetSizesPage(out float[] sizes)
+        public void GetSizesPage(out float[] sizes, int number)
         {
-            var page = _pdfDoc.GetPage(1);
+            var page = _pdfDoc.GetPage(number);
             var mediaBox = page.GetMediaBox();
-            sizes = new float[2] { mediaBox.GetWidth(), mediaBox.GetHeight() };
+            sizes = new float[6] { mediaBox.GetWidth(), mediaBox.GetHeight(), mediaBox.GetTop(), mediaBox.GetRight(), mediaBox.GetBottom(), mediaBox.GetLeft() };
         }
 
-        public void AddPage()
+        public void AddPage(PageSize pageSize)
         {
-            _pdfDoc.AddNewPage();
+            _pdfDoc.AddNewPage(pageSize);
         }
 
         public void Dispose()
